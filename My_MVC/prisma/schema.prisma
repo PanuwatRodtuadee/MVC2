@@ -8,6 +8,22 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+<<<<<<< HEAD
+=======
+// 1. ตารางข่าวลือ
+model Rumor {
+  id               String   @id // ใช้ String ตามเดิม
+  title            String
+  content          String
+  created_at       DateTime @default(now())
+  credibility_score Int     @default(50)
+  status           String   @default("normal")
+  is_approved      Boolean  @default(false) 
+  reports          Report[]
+}
+
+// 2. ตารางผู้ใช้งาน
+>>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
 model User {
   id      Int      @id @default(autoincrement())
   name    String

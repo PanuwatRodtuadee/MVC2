@@ -3,7 +3,10 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
+<<<<<<< HEAD
   // 1. สร้าง User 10 คน + Auditor 1 คน
+=======
+>>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
   const users = []
   for (let i = 1; i <= 11; i++) {
     const isAuditor = (i === 11);
@@ -15,7 +18,6 @@ async function main() {
   }
   await prisma.user.createMany({ data: users })
 
-  // 2. สร้าง Rumors 8 ข่าว
   const rumors = [
     { id: '01000001', title: 'น้ำมะนาวรักษาโรคมะเร็ง', content: 'มีข่าวลือว่ากินมะนาวโซดาหายทุกโรค', status: 'normal', credibility_score: 20 },
     { id: '01000002', title: 'พายุกำลังจะถล่มกรุงเทพ', content: 'ฝนจะตกหนักน้ำท่วมมิดตึก', status: 'panic', credibility_score: 40 },
@@ -31,7 +33,7 @@ async function main() {
     await prisma.rumor.create({ data: r })
   }
   
-  console.log('✅ Seed Data เรียบร้อย!')
+  console.log('Seed Data เรียบร้อย!')
 }
 
 main()
