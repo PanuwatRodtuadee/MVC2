@@ -1,10 +1,6 @@
 // src/routes/rumor/[id]/+page.server.ts
 import { PrismaClient } from '@prisma/client';
 import { fail } from '@sveltejs/kit';
-<<<<<<< HEAD
-=======
-
->>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
 import type { PageServerLoad, Actions } from './$types';
 
 const prisma = new PrismaClient();
@@ -15,13 +11,8 @@ export const load: PageServerLoad = async ({ params }) => {
     include: { reports: { include: { user: true } } }
   });
   
-<<<<<<< HEAD
   const users = await prisma.user.findMany(); 
   
-=======
-  const users = await prisma.user.findMany();
-
->>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
   if (!rumor) throw new Error("Rumor not found");
 
   return { rumor, users };
@@ -31,28 +22,19 @@ export const actions: Actions = {
   report: async ({ request, params }) => {
     const formData = await request.formData();
     const userId = Number(formData.get('userId'));
-<<<<<<< HEAD
     const type = String(formData.get('type') || '');
     const password = String(formData.get('password') || ''); // รับรหัสผ่านเพิ่ม
 
     // 1. ดึงข้อมูล User มาเช็ค Role และ Password
-=======
-    const type = String(formData.get('type'));
-    const password = String(formData.get('password') || '');
-
->>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
     const user = await prisma.user.findUnique({ where: { id: userId } });
     
     if (!user) {
         return fail(400, { message: 'ไม่พบผู้ใช้งาน' });
     }
 
-<<<<<<< HEAD
     // ------------------------------------------------
     // 🛡️ กรณีเป็น AUDITOR (ทำการตรวจสอบข่าว)
     // ------------------------------------------------
-=======
->>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
     if (user.role === 'auditor') {
         // เช็ครหัสผ่าน (เทียบกับใน Database)
         if (user.password !== password) {
@@ -75,10 +57,7 @@ export const actions: Actions = {
     // 👤 กรณีเป็น USER ทั่วไป (ทำการแจ้ง Report)
     // ------------------------------------------------
     try {
-<<<<<<< HEAD
       // 1. บันทึก Report
-=======
->>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
       await prisma.report.create({
         data: {
           rumorId: params.id,

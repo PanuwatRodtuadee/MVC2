@@ -2,17 +2,11 @@
     export let data;
     export let form;
   
-<<<<<<< HEAD
     // 1. ตัวแปรเก็บ ID คนที่ถูกเลือก
     let selectedUserId = "";
   
     // 2. เช็คว่าคนนี้เป็น Auditor หรือไม่? (ถ้าใช่ isAuditor จะเป็น true)
     $: isAuditor = data.users.find(u => u.id == selectedUserId)?.role === 'auditor';
-=======
-    let selectedUserId = "";
-  
-    $: isAuditorSelected = data.users.find(u => u.id == selectedUserId)?.role === 'auditor';
->>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
   </script>
   
   <div class="container mt-5">

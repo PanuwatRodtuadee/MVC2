@@ -3,10 +3,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-<<<<<<< HEAD
   // 1. สร้าง User 10 คน + Auditor 1 คน
-=======
->>>>>>> 5f708650907fd91cd7a35412458bc768eaaf21fb
   const users = []
   for (let i = 1; i <= 11; i++) {
     const isAuditor = (i === 11);
