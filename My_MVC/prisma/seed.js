@@ -31,7 +31,7 @@ async function main() {
     await prisma.rumor.create({ data: r })
   }
   
-  console.log('✅ Seed Data เรียบร้อย!')
+  console.log('Seed Data เรียบร้อย!')
 }
 
 main()
