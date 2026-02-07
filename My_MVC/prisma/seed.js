@@ -5,8 +5,13 @@ const prisma = new PrismaClient()
 async function main() {
   // 1. สร้าง User 10 คน
   const users = []
-  for (let i = 1; i <= 11; i++) {
-    users.push({ name: `User ${i}`, role: i === 11 ? 'auditor' : 'general' })
+  for (let i = 1; i <= 11; i++) { // วน 11 คน
+    const isAuditor = (i === 11);
+    users.push({
+        name: isAuditor ? `Auditor` : `User ${i}`,
+        role: isAuditor ? 'auditor' : 'general',
+        password: isAuditor ? 'admin123' : '1234' // <-- Auditor ใช้ 'admin123', คนอื่น '1234'
+    })
   }
   await prisma.user.createMany({ data: users })
 

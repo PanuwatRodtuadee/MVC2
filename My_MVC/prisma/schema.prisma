@@ -22,10 +22,11 @@ model Rumor {
 
 // 2. ตารางผู้ใช้งาน
 model User {
-  id      Int      @id @default(autoincrement())
-  name    String
-  role    String   @default("general")
-  reports Report[]
+  id       Int      @id @default(autoincrement())
+  name     String
+  role     String   @default("general")
+  password String   @default("1234") // <-- เพิ่มบรรทัดนี้ (ค่าเริ่มต้น 1234)
+  reports  Report[]
 }
 
 // 3. ตารางการรายงาน
