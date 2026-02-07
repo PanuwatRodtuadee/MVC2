@@ -1,58 +1,89 @@
+// src/routes/rumor/[id]/+page.server.ts
 import { PrismaClient } from '@prisma/client';
 import { fail } from '@sveltejs/kit';
-// 👇 1. เพิ่มบรรทัดนี้ เพื่อดึง Type มาใช้
 import type { PageServerLoad, Actions } from './$types';
 
 const prisma = new PrismaClient();
 
-// 👇 2. เติม ": PageServerLoad" หลัง load
 export const load: PageServerLoad = async ({ params }) => {
   const rumor = await prisma.rumor.findUnique({
     where: { id: params.id },
     include: { reports: { include: { user: true } } }
   });
   
-  const users = await prisma.user.findMany();
+  const users = await prisma.user.findMany(); 
   
-  // เช็คว่าถ้าหาไม่เจอ ให้ return null หรือ throw error (TypeScript จะได้ไม่บ่น)
   if (!rumor) throw new Error("Rumor not found");
 
   return { rumor, users };
 };
 
-// 👇 3. เติม ": Actions" หลัง actions
 export const actions: Actions = {
   report: async ({ request, params }) => {
     const formData = await request.formData();
     const userId = Number(formData.get('userId'));
-    const type = String(formData.get('type'));
-    const password = String(formData.get('password') || ''); // <-- รับค่า Password
+    const type = String(formData.get('type') || '');
+    const password = String(formData.get('password') || ''); // รับรหัสผ่านเพิ่ม
 
-    // 1. ดึงข้อมูล User มาเช็คก่อน
+    // 1. ดึงข้อมูล User มาเช็ค Role และ Password
     const user = await prisma.user.findUnique({ where: { id: userId } });
-
+    
     if (!user) {
         return fail(400, { message: 'ไม่พบผู้ใช้งาน' });
     }
 
-    // ⭐ LOGIC ใหม่: ถ้าเป็น Auditor ต้องเช็ค Password
+    // ------------------------------------------------
+    // 🛡️ กรณีเป็น AUDITOR (ทำการตรวจสอบข่าว)
+    // ------------------------------------------------
     if (user.role === 'auditor') {
-        if (password !== user.password) {
+        // เช็ครหัสผ่าน (เทียบกับใน Database)
+        if (user.password !== password) {
             return fail(400, { message: '❌ รหัสผ่านสำหรับ Auditor ไม่ถูกต้อง!' });
         }
+
+        // อัปเดตข่าวเป็น "ตรวจสอบแล้ว" (Verified) และรีเซ็ตสถานะเป็น normal
+        await prisma.rumor.update({
+            where: { id: params.id },
+            data: { 
+                is_verified: true, 
+                status: 'normal' 
+            }
+        });
+
+        return { success: true, message: '✅ ยืนยันตรวจสอบข่าวเรียบร้อยแล้ว' };
     }
 
+    // ------------------------------------------------
+    // 👤 กรณีเป็น USER ทั่วไป (ทำการแจ้ง Report)
+    // ------------------------------------------------
     try {
-      // (โค้ดบันทึก Report เดิมของคุณ...)
+      // 1. บันทึก Report
       await prisma.report.create({
-        data: { rumorId: params.id, userId: userId, type: type }
+        data: {
+          rumorId: params.id,
+          userId: userId,
+          type: type
+        }
       });
-      
-      // ... (ส่วนเช็ค Panic เหมือนเดิม) ...
 
-      return { success: true };
+      // 2. เช็คจำนวน Report ถ้าเกิน 3 ครั้ง -> เปลี่ยนเป็น PANIC
+      // (เช็คเพิ่มว่าถ้าข่าวยังไม่ Verified ถึงจะเปลี่ยนเป็น Panic ได้)
+      const count = await prisma.report.count({ where: { rumorId: params.id } });
+      
+      const currentRumor = await prisma.rumor.findUnique({ where: { id: params.id } });
+      
+      if (count >= 3 && !currentRumor?.is_verified) {
+        await prisma.rumor.update({
+          where: { id: params.id },
+          data: { status: 'panic' }
+        });
+      }
+
+      return { success: true, message: 'ส่งรายงานเรียบร้อยแล้ว' };
+
     } catch (error) {
-      return fail(400, { message: 'เกิดข้อผิดพลาด' });
+      // User คนเดิมแจ้งซ้ำไม่ได้ (ติด Unique Constraint)
+      return fail(400, { message: 'คุณได้รายงานข่าวนี้ไปแล้ว หรือเกิดข้อผิดพลาด' });
     }
   }
 };

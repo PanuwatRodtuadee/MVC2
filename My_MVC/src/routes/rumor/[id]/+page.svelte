@@ -1,27 +1,32 @@
 <script>
     export let data;
-    export let form; // รับค่า error จาก Server
+    export let form;
   
-    // 1. สร้างตัวแปรเก็บ ID ของ User ที่ถูกเลือกใน Dropdown
+    // 1. ตัวแปรเก็บ ID คนที่ถูกเลือก
     let selectedUserId = "";
   
-    // 2. สร้าง Reactive Statement: คอยเช็คตลอดเวลาว่า User ที่เลือกมี role เป็น 'auditor' หรือไม่?
-    $: isAuditorSelected = data.users.find(u => u.id == selectedUserId)?.role === 'auditor';
+    // 2. เช็คว่าคนนี้เป็น Auditor หรือไม่? (ถ้าใช่ isAuditor จะเป็น true)
+    $: isAuditor = data.users.find(u => u.id == selectedUserId)?.role === 'auditor';
   </script>
   
   <div class="container mt-5">
     <a href="/" class="btn btn-secondary mb-3">&larr; กลับหน้าหลัก</a>
   
     {#if form?.message}
-      <div class="alert alert-danger">{form.message}</div>
+      <div class="alert {form.success ? 'alert-success' : 'alert-danger'}">{form.message}</div>
     {/if}
   
     <div class="card mb-4 shadow">
-      <div class="card-header bg-dark text-white d-flex justify-content-between">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
         <h3>{data.rumor.title}</h3>
-        <span class="badge {data.rumor.status === 'panic' ? 'bg-danger' : 'bg-success'}">
-          {data.rumor.status.toUpperCase()}
-        </span>
+        
+        {#if data.rumor.is_verified}
+            <span class="badge bg-success fs-6">✅ ตรวจสอบแล้ว</span>
+        {:else}
+            <span class="badge {data.rumor.status === 'panic' ? 'bg-danger' : 'bg-warning text-dark'}">
+              {data.rumor.status.toUpperCase()}
+            </span>
+        {/if}
       </div>
       <div class="card-body">
           <p class="lead">{data.rumor.content}</p>
@@ -33,11 +38,12 @@
       <div class="col-md-6">
           <div class="card bg-light">
               <div class="card-body">
-                  <h4>🚨 แจ้งข่าวปลอม/บิดเบือน</h4>
+                  <h4>⚙️ ดำเนินการเกี่ยวกับข่าว</h4>
+                  
                   <form method="POST" action="?/report">
                       
                       <div class="mb-3">
-                          <label class="form-label">เลือกชื่อของคุณ (จำลอง Login)</label>
+                          <label class="form-label">เลือกผู้ดำเนินการ</label>
                           <select name="userId" class="form-select" bind:value={selectedUserId} required>
                               <option value="" disabled selected>-- กรุณาเลือก --</option>
                               {#each data.users as u}
@@ -46,24 +52,27 @@
                           </select>
                       </div>
   
-                      {#if isAuditorSelected}
-                          <div class="mb-3 bg-white p-3 border rounded shadow-sm">
-                              <label class="form-label text-danger fw-bold">🔑 รหัสผ่าน (สำหรับ Auditor)</label>
-                              <input type="password" name="password" class="form-control" placeholder="กรอกรหัสผ่าน..." required>
-                              <div class="form-text text-muted">รหัสผ่านทดสอบ: <strong>1234</strong></div>
+                      {#if isAuditor}
+                          <div class="alert alert-success border-success">
+                              <h6>🛡️ โหมดผู้ตรวจสอบ</h6>
+                              <div class="mb-3">
+                                  <label class="form-label fw-bold">รหัสผ่านยืนยันตัวตน</label>
+                                  <input type="password" name="password" class="form-control" placeholder="ใส่รหัสผ่าน..." required>
+                              </div>
+                              <button type="submit" class="btn btn-success w-100">✅ ยืนยันตรวจสอบ (Verify)</button>
                           </div>
+                      {:else}
+                          <div class="mb-3">
+                              <label class="form-label">ประเภทความผิดปกติ</label>
+                              <select name="type" class="form-select">
+                                  <option>บิดเบือน</option>
+                                  <option>ปลุกปั่น</option>
+                                  <option>ข้อมูลเท็จ</option>
+                              </select>
+                          </div>
+                          <button type="submit" class="btn btn-danger w-100">🚨 ส่งรายงาน</button>
                       {/if}
   
-                      <div class="mb-3">
-                          <label class="form-label">ประเภทความผิดปกติ</label>
-                          <select name="type" class="form-select">
-                              <option>บิดเบือน</option>
-                              <option>ปลุกปั่น</option>
-                              <option>ข้อมูลเท็จ</option>
-                          </select>
-                      </div>
-                      
-                      <button type="submit" class="btn btn-danger w-100">ส่งรายงาน</button>
                   </form>
               </div>
           </div>

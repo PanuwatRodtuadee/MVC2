@@ -1,5 +1,4 @@
 // prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,37 +8,36 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-// 1. ตารางข่าวลือ
-model Rumor {
-  id               String   @id
-  title            String
-  content          String
-  created_at       DateTime @default(now())
-  credibility_score Int     @default(50)
-  status           String   @default("normal")
-  reports          Report[]
-}
-
-// 2. ตารางผู้ใช้งาน
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String
-  role     String   @default("general")
-  password String   @default("1234") // <-- เพิ่มบรรทัดนี้ (ค่าเริ่มต้น 1234)
-  reports  Report[]
+  id      Int      @id @default(autoincrement())
+  name    String
+  role    String   @default("general") // general, auditor
+  reports Report[]
+  password String
 }
 
-// 3. ตารางการรายงาน
+model Rumor {
+  id                String   @id
+  title             String
+  content           String
+  created_at        DateTime @default(now())
+  credibility_score Int     @default(50)
+  status            String  @default("normal") // normal, panic
+  
+  reports           Report[]
+}
+
 model Report {
   id          Int      @id @default(autoincrement())
   report_date DateTime @default(now())
-  type        String
+  type        String   // บิดเบือน, ปลุกปั่น, ข้อมูลเท็จ
   
-  rumor       Rumor    @relation(fields: [rumorId], references: [id])
   rumorId     String
+  rumor       Rumor    @relation(fields: [rumorId], references: [id])
   
-  user        User     @relation(fields: [userId], references: [id])
   userId      Int
+  user        User     @relation(fields: [userId], references: [id])
 
+  // กฎ: User 1 คน Report ข่าวเดิมได้แค่ครั้งเดียว
   @@unique([rumorId, userId])
 }

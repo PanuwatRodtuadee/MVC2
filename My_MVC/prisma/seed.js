@@ -3,14 +3,14 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  // 1. สร้าง User 10 คน
+  // 1. สร้าง User 10 คน + Auditor 1 คน
   const users = []
-  for (let i = 1; i <= 11; i++) { // วน 11 คน
+  for (let i = 1; i <= 11; i++) {
     const isAuditor = (i === 11);
     users.push({
-        name: isAuditor ? `Auditor` : `User ${i}`,
+        name: isAuditor ? 'Auditor (User 11)' : `User ${i}`,
         role: isAuditor ? 'auditor' : 'general',
-        password: isAuditor ? 'admin123' : '1234' // <-- Auditor ใช้ 'admin123', คนอื่น '1234'
+        password: isAuditor ? 'admin123' : '1234'
     })
   }
   await prisma.user.createMany({ data: users })
