@@ -5,8 +5,8 @@ const prisma = new PrismaClient()
 async function main() {
   // 1. สร้าง User 10 คน
   const users = []
-  for (let i = 1; i <= 10; i++) {
-    users.push({ name: `User ${i}`, role: i === 10 ? 'auditor' : 'general' })
+  for (let i = 1; i <= 11; i++) {
+    users.push({ name: `User ${i}`, role: i === 11 ? 'auditor' : 'general' })
   }
   await prisma.user.createMany({ data: users })
 
