@@ -1,11 +1,9 @@
 <script>
     export let data;
-    export let form; // รับค่า error จาก Server
+    export let form;
   
-    // 1. สร้างตัวแปรเก็บ ID ของ User ที่ถูกเลือกใน Dropdown
     let selectedUserId = "";
   
-    // 2. สร้าง Reactive Statement: คอยเช็คตลอดเวลาว่า User ที่เลือกมี role เป็น 'auditor' หรือไม่?
     $: isAuditorSelected = data.users.find(u => u.id == selectedUserId)?.role === 'auditor';
   </script>
   
