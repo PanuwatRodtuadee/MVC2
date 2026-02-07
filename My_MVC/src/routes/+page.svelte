@@ -1,2 +1,41 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script>
+    export let data;
+  </script>
+  
+  <div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>📢 ระบบติดตามข่าวลือ (Rumor Tracking)</h1>
+      <a href="/dashboard" class="btn btn-warning">ไปหน้า Dashboard</a>
+    </div>
+  
+    <table class="table table-hover table-bordered shadow-sm">
+      <thead class="table-dark">
+        <tr>
+          <th>รหัสข่าว</th>
+          <th>หัวข้อข่าว</th>
+          <th>สถานะ</th>
+          <th>ความน่าเชื่อถือ</th>
+          <th>จำนวนคนแจ้ง</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each data.rumors as r}
+          <tr class="{r.status === 'panic' ? 'table-danger' : ''}">
+            <td>{r.id}</td>
+            <td>{r.title}</td>
+            <td>
+              <span class="badge {r.status === 'panic' ? 'bg-danger' : 'bg-success'}">
+                {r.status}
+              </span>
+            </td>
+            <td>{r.credibility_score}%</td>
+            <td>{r._count.reports} ครั้ง</td>
+            <td>
+              <a href="/rumor/{r.id}" class="btn btn-sm btn-primary">ดูรายละเอียด</a>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>

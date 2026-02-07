@@ -9,31 +9,30 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-// 1. ตารางข่าวลือ (Rumor)
+// 1. ตารางข่าวลือ
 model Rumor {
-  id               String   @id // ใช้ String เพื่อให้เก็บเลข 0 นำหน้าได้ (เช่น 01234567)
+  id               String   @id
   title            String
   content          String
   created_at       DateTime @default(now())
-  credibility_score Int      @default(50) // คะแนนความน่าเชื่อถือ
-  status           String   @default("normal") // normal / panic
-  
+  credibility_score Int     @default(50)
+  status           String   @default("normal")
   reports          Report[]
 }
 
-// 2. ตารางผู้ใช้งาน (Users)
+// 2. ตารางผู้ใช้งาน
 model User {
   id      Int      @id @default(autoincrement())
   name    String
-  role    String   @default("general") // general / auditor
+  role    String   @default("general")
   reports Report[]
 }
 
-// 3. ตารางการรายงาน (Report)
+// 3. ตารางการรายงาน
 model Report {
   id          Int      @id @default(autoincrement())
   report_date DateTime @default(now())
-  type        String   // บิดเบือน / ปลุกปั่น / ข้อมูลเท็จ
+  type        String
   
   rumor       Rumor    @relation(fields: [rumorId], references: [id])
   rumorId     String
@@ -41,6 +40,5 @@ model Report {
   user        User     @relation(fields: [userId], references: [id])
   userId      Int
 
-  // กฎ: 1 User รายงานข่าวเดิมซ้ำไม่ได้ (Business Rule ข้อ 1)
   @@unique([rumorId, userId])
 }
